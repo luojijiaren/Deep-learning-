@@ -41,7 +41,7 @@ def problem13 (A, c, d):
 
 def problem14 (A, k):
 	eval,evec = np.linalg.eig(A)
-	return evec[np.argsort(eval)[:k]]
+	return evec[np.argsort(eval)[-k:][::-1]]
 
 def problem15 (x, k, m, s):
 	A=x+m*np.ones(x.shape)
