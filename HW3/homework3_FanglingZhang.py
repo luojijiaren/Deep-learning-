@@ -12,74 +12,6 @@ def gradJ (w, faces, labels, alpha = 0.):
     gradJ=np.dot(faces.T,dif)+alpha*w
     return gradJ 
 
-def gradientDescent (trainingFaces, trainingLabels, testingFaces, testingLabels, alpha = 0.):
-    w = np.zeros(trainingFaces.shape[1])  # Or set to random vector
-    J_dif=0.1
-    Des_gradJ= np.zeros(trainingFaces.shape[1])     
-    while J_dif > 0.001:
-        J0=J (w, trainingFaces, trainingLabels,alpha)
-        Des_gradJ=gradJ (w, trainingFaces, trainingLabels,alpha)
-        w=w-0.0005*Des_gradJ
-        J1=J (w, trainingFaces, trainingLabels,alpha)
-        J_dif=J0-J1
-    return w
-
-
-def method2 (trainingFaces, trainingLabels, testingFaces, testingLabels):
-    return gradientDescent(trainingFaces, trainingLabels, testingFaces, testingLabels)
-
-def method3 (trainingFaces, trainingLabels, testingFaces, testingLabels):
-    alpha = 0.08
-    return gradientDescent(trainingFaces, trainingLabels, testingFaces, testingLabels, alpha)
-
-def reportCosts (w, trainingFaces, trainingLabels, testingFaces, testingLabels, alpha = 0.):
-    print ("Training cost: {}".format(J(w, trainingFaces, trainingLabels, alpha)))
-    print ("Testing cost:  {}".format(J(w, testingFaces, testingLabels, alpha)))
-
-# Accesses the web camera, displays a window showing the face, and classifies smiles in real time
-# Requires OpenCV.
-def detectSmiles (w):
-    # Given the image captured from the web camera, classify the smile
-    def classifySmile (im, imGray, faceBox, w):
-        # Extract face patch as vector
-        face = imGray[faceBox[1]:faceBox[1]+faceBox[3], faceBox[0]:faceBox[0]+faceBox[2]]
-        face = cv2.resize(face, (24, 24))
-        face = (face - np.mean(face)) / np.std(face)  # Normalize
-        face = np.reshape(face, face.shape[0]*face.shape[1])
-
-        # Classify face patch
-        yhat = w.dot(face)
-        print (yhat)
-
-        # Draw result as colored rectangle
-        THICKNESS = 3
-        green = 128 + (yhat - 0.5) * 255
-        color = (0, green, 255 - green)
-        pt1 = (faceBox[0], faceBox[1])
-        pt2 = (faceBox[0]+faceBox[2], faceBox[1]+faceBox[3])
-        cv2.rectangle(im, pt1, pt2, color, THICKNESS)
-
-    # Starting video capture
-    vc = cv2.VideoCapture()
-    vc.open(0)
-    faceDetector = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")  # TODO update the path
-    while vc.grab():
-        (tf,im) = vc.read()
-        im = cv2.resize(im, (im.shape[1]/2, im.shape[0]/2))  # Divide resolution by 2 for speed
-        imGray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        k = cv2.waitKey(30)
-        if k >= 0 and chr(k) == 'q':
-            print ("quitting")
-            break
-
-        # Detect faces
-        faceBoxes = faceDetector.detectMultiScale(imGray)
-        for faceBox in faceBoxes:
-            classifySmile(im, imGray, faceBox, w)
-        cv2.imshow("WebCam", im)
-
-    cv2.destroyWindow("WebCam")
-    vc.release()
 
 if __name__ == "__main__":
     # Load data
@@ -96,13 +28,22 @@ if __name__ == "__main__":
         fai=np.diag(eval2)
         L=np.dot(evec,fai)
         md_trainingFaces=np.dot(trainingFaces,L)
-        md_testingFaces=np.dot(testingFaces,L)
+        return md_trainingFaces
         
-    w2 = method2(md_trainingFaces, trainingLabels, md_testingFaces, testingLabels)
-    w3 = method3(md_trainingFaces, trainingLabels, md_testingFaces, testingLabels)
-
-    for w in [ w2, w3 ]:
-        reportCosts(w, md_trainingFaces, trainingLabels, md_testingFaces, testingLabels)
+        
+w = np.zeros(md_trainingFaces.shape[1])  # Or set to random vector
+J_dif=0.1
+Des_gradJ= np.zeros(md_trainingFaces.shape[1]) 
+alpha=0
+Cost=[]
+while J_dif > 0.001:
+    J0=J (w, md_trainingFaces, trainingLabels,alpha)
+    Des_gradJ=gradJ (w, md_trainingFaces, trainingLabels,alpha)
+    w=w-0.1*Des_gradJ
+    J1=J (w, md_trainingFaces, trainingLabels,alpha)
+    J_dif=J0-J1
+    Cost.append(round(J1))
+print("Training cost: {}".format(Cost))
         
 
         
@@ -110,7 +51,6 @@ if __name__ == "__main__":
         
         
 # Problem 3
-        
         
 import numpy as np
 
@@ -129,75 +69,6 @@ def gradJ (w, faces, labels, alpha = 0.):
     gradJ=1/m*np.dot(faces.T,dif)+alpha*w
     return gradJ 
 
-def gradientDescent (trainingFaces, trainingLabels, testingFaces, testingLabels, alpha = 0.):
-    w = np.zeros(trainingFaces.shape[1])  # Or set to random vector
-    J_dif=0.1
-    Des_gradJ= np.zeros(trainingFaces.shape[1])     
-    while J_dif > 0.001:
-        J0=J (w, trainingFaces, trainingLabels,alpha)
-        Des_gradJ=gradJ (w, trainingFaces, trainingLabels,alpha)
-        w=w-0.05*Des_gradJ
-        J1=J (w, trainingFaces, trainingLabels,alpha)
-        J_dif=J0-J1
-    return w
-
-
-def method2 (trainingFaces, trainingLabels, testingFaces, testingLabels):
-    return gradientDescent(trainingFaces, trainingLabels, testingFaces, testingLabels)
-
-def method3 (trainingFaces, trainingLabels, testingFaces, testingLabels):
-    alpha = 1e-2
-    return gradientDescent(trainingFaces, trainingLabels, testingFaces, testingLabels, alpha)
-
-def reportCosts (w, trainingFaces, trainingLabels, testingFaces, testingLabels, alpha = 0.):
-    print ("Training cost: {}".format(J(w, trainingFaces, trainingLabels, alpha)))
-    print ("Testing cost:  {}".format(J(w, testingFaces, testingLabels, alpha)))
-
-# Accesses the web camera, displays a window showing the face, and classifies smiles in real time
-# Requires OpenCV.
-def detectSmiles (w):
-    # Given the image captured from the web camera, classify the smile
-    def classifySmile (im, imGray, faceBox, w):
-        # Extract face patch as vector
-        face = imGray[faceBox[1]:faceBox[1]+faceBox[3], faceBox[0]:faceBox[0]+faceBox[2]]
-        face = cv2.resize(face, (24, 24))
-        face = (face - np.mean(face)) / np.std(face)  # Normalize
-        face = np.reshape(face, face.shape[0]*face.shape[1])
-
-        # Classify face patch
-        yhat = w.dot(face)
-        print (yhat)
-
-        # Draw result as colored rectangle
-        THICKNESS = 3
-        green = 128 + (yhat - 0.5) * 255
-        color = (0, green, 255 - green)
-        pt1 = (faceBox[0], faceBox[1])
-        pt2 = (faceBox[0]+faceBox[2], faceBox[1]+faceBox[3])
-        cv2.rectangle(im, pt1, pt2, color, THICKNESS)
-
-    # Starting video capture
-    vc = cv2.VideoCapture()
-    vc.open(0)
-    faceDetector = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")  # TODO update the path
-    while vc.grab():
-        (tf,im) = vc.read()
-        im = cv2.resize(im, (im.shape[1]/2, im.shape[0]/2))  # Divide resolution by 2 for speed
-        imGray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        k = cv2.waitKey(30)
-        if k >= 0 and chr(k) == 'q':
-            print ("quitting")
-            break
-
-        # Detect faces
-        faceBoxes = faceDetector.detectMultiScale(imGray)
-        for faceBox in faceBoxes:
-            classifySmile(im, imGray, faceBox, w)
-        cv2.imshow("WebCam", im)
-
-    cv2.destroyWindow("WebCam")
-    vc.release()
-
 if __name__ == "__main__":
     # Load data
     if ('trainingFaces' not in globals()):  # In ipython, use "run -i homework2_template.py" to avoid re-loading of data
@@ -205,9 +76,49 @@ if __name__ == "__main__":
         trainingLabels = np.load("trainingLabels.npy")
         testingFaces = np.load("testingFaces.npy")
         testingLabels = np.load("testingLabels.npy")
+        
+w = np.zeros(trainingFaces.shape[1])  # Or set to random vector
+J_dif=0.1
+Des_gradJ= np.zeros(trainingFaces.shape[1]) 
+alpha=0
+Cost=[]
+for i in range(15000):
+    J0=J (w, trainingFaces, trainingLabels,alpha)
+    Des_gradJ=gradJ (w, trainingFaces, trainingLabels,alpha)
+    w=w-0.25*Des_gradJ
+    J1=J (w, trainingFaces, trainingLabels,alpha)
+    J_dif=J0-J1
+    Cost.append(J1)
+print(w)
+print("Training cost: {}".format(Cost[-20:])) 
 
-    w2 = method2(trainingFaces, trainingLabels, testingFaces, testingLabels)
-    w3 = method3(trainingFaces, trainingLabels, testingFaces, testingLabels)
 
-    for w in [ w2, w3 ]:
-        reportCosts(w, trainingFaces, trainingLabels, testingFaces, testingLabels)
+def method4 (trainingFaces, trainingLabels):
+    z=np.log(trainingLabels)-np.log(1-trainingLabels)
+    w = np.zeros(trainingFaces.shape[1]) 
+    mult_faces=np.dot(trainingFaces.T,trainingFaces)
+    mult_labels=np.dot(trainingFaces.T,z)
+    w=np.linalg.solve(mult_faces,mult_labels)
+    return w
+
+
+def reportCosts (w, trainingFaces, trainingLabels, alpha = 0.):
+    print ("Training cost: {}".format(J(w, trainingFaces, trainingLabels, alpha)))
+
+w4 = method4(trainingFaces, trainingLabels)
+reportCosts(w4, trainingFaces, trainingLabels) 
+    
+
+#check gradient
+from scipy.optimize import check_grad
+check_grad(J, gradJ,w,trainingFaces, trainingLabels)
+        
+#compare against sklearn.linear model.LogisticRegression        
+from sklearn.linear_model import LogisticRegression
+lrc=LogisticRegression(C=1e-2,fit_intercept=False)
+lrc.fit(trainingFaces, trainingLabels)
+y_hat=lrc.predict_proba(trainingFaces)[:,1]
+y=trainingLabels
+m=trainingLabels.size     
+J=-1/m*(np.dot(y.T,np.log(y_hat))+np.dot((1-y).T,np.log(1-y_hat)))
+J
