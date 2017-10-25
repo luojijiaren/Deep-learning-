@@ -8,7 +8,7 @@ Created on Tue Oct 24 12:55:56 2017
 import keras
 import pandas as pd
 
-data=pd.read_csv('Google_Stock_Price_Train.csv')
+data=pd.read_csv('GOOG_train.csv')
 data=data.iloc[:,1:2].values
 
 #scale
@@ -16,12 +16,12 @@ from sklearn.preprocessing import MinMaxScaler
 sc=MinMaxScaler()
 training=sc.fit_transform(data)
 
-x=training[0:1257]
-y=training[1:1258]
+x=training[0:1067]
+y=training[1:1068]
 
 #reshape
 import numpy as np
-x=np.reshape(x,(1257,1,1))
+x=np.reshape(x,(1067,1,1))
 
 #rnn
 from keras.models import Sequential
@@ -34,14 +34,14 @@ m.add(Dense(1))
 m.compile('adam',loss='mean_squared_error')
 
 #fit
-m.fit(x,y,epochs=50)
+m.fit(x,y,epochs=200)
 
 #predict
-t=pd.read_csv('Google_Stock_Price_Test.csv')
+t=pd.read_csv('GOOG.csv')
 real_price=t.iloc[:,1:2].values
 test=real_price
 test=sc.transform(test)
-test=np.reshape(test,(20,1,1))
+test=np.reshape(test,(65,1,1))
 price=m.predict(test)
 p=sc.inverse_transform(price)
 

@@ -21,7 +21,7 @@ X_train = training_set[0:1257]
 y_train = training_set[1:1258]
 
 # Reshaping
-X_train = np.reshape(X_train, (1257, 1, 1))
+X_train = np.reshape(X_train, (1257, 1, 1))  #add a timestep dimension
 
 # Part 2 - Building the RNN
 
